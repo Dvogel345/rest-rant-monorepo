@@ -93,22 +93,38 @@ router.post('/:placeId/comments', async (req, res) => {
     if (!place) {
         return res.status(404).json({ message: `Could not find place with id "${placeId}"` })
     }
+    let currentUser;
+    try {
+        const [method, token] = req.headers.aithorization.split(' ')
+        if (method == 'Bearer') {
+            const result = await jwt.decode(process.env.JWT_SECRET, token)
+            const { id } = result.value
+            currentUser = await User.findOne({
+                headers: {
+                    userId: id
+                }
+            })
+            }
+        } catch {
+            currentUser = null
+        }
+        if (!currentUser) {
+            return res.status(404).json({
+                message: `You must be logged in to leave a rant or rave!`
+            })
+        }
 
-    if (!req.currentUser) {
-        return res.status(404).json({ message: `You must be logged in to leave a rand or rave.` })
-    }
+        const comment = await Comment.create({
+            ...req.body,
+            authorId: currentUser.userId,
+            placeId: placeId
+        })
 
-    const comment = await Comment.create({
-        ...req.body,
-        authorId: req.currentUser.userId,
-        placeId: placeId
+        res.send({
+            ...comment.toJSON(),
+            author: req.currentUser
+        })
     })
-
-    res.send({
-        ...comment.toJSON(),
-        author: req.currentUser
-    })
-})
 
 router.delete('/:placeId/comments/:commentId', async (req, res) => {
     let placeId = Number(req.params.placeId)
@@ -124,9 +140,9 @@ router.delete('/:placeId/comments/:commentId', async (req, res) => {
         })
         if (!comment) {
             res.status(404).json({ message: `Could not find comment with id "${commentId}" for place with id "${placeId}"` })
-        } else if(comment.authorId !== req.currentUser?.userId){
-            res.status(403).json({ message: `You do not have permission to delete comment "${comment.commentId}"`})
-        }else {
+        } else if (comment.authorId !== req.currentUser?.userId) {
+            res.status(403).json({ message: `You do not have permission to delete comment "${comment.commentId}"` })
+        } else {
             await comment.destroy()
             res.json(comment)
         }
