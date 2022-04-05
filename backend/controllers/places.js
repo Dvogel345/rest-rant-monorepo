@@ -4,6 +4,9 @@ const db = require("../models")
 const { Place, Comment, User } = db
 
 router.post('/', async (req, res) => {
+    if(req.currentUser?.role !== 'admin'){
+        return res.status(403).json({ message: 'You are not allowed to add a place'})
+    }
     if (!req.body.pic) {
         req.body.pic = 'http://placekitten.com/400/400'
     }
@@ -45,6 +48,9 @@ router.get('/:placeId', async (req, res) => {
 })
 
 router.put('/:placeId', async (req, res) => {
+    if(req.currentUser?.role !== 'admin'){
+        return res.status(403).json({ message: 'You are not allowed to edit places'})
+    }
     let placeId = Number(req.params.placeId)
     if (isNaN(placeId)) {
         res.status(404).json({ message: `Invalid id "${placeId}"` })
@@ -63,6 +69,9 @@ router.put('/:placeId', async (req, res) => {
 })
 
 router.delete('/:placeId', async (req, res) => {
+    if(req.currentUser?.role !== 'admin'){
+        return res.status(403).json({ message: 'You are not allowed to delete places'})
+    }
     let placeId = Number(req.params.placeId)
     if (isNaN(placeId)) {
         res.status(404).json({ message: `Invalid id "${placeId}"` })
@@ -82,6 +91,7 @@ router.delete('/:placeId', async (req, res) => {
 })
 
 router.post('/:placeId/comments', async (req, res) => {
+    
     const placeId = Number(req.params.placeId)
 
     req.body.rant = req.body.rant ? true : false
@@ -93,6 +103,7 @@ router.post('/:placeId/comments', async (req, res) => {
     if (!place) {
         return res.status(404).json({ message: `Could not find place with id "${placeId}"` })
     }
+<<<<<<< HEAD
     if (!req.currentUser) {
         return res.status(404).json({ message: `Could not find place with id "${palceId}"`})
     }
@@ -107,6 +118,22 @@ router.post('/:placeId/comments', async (req, res) => {
             ...comment.toJSON(),
             author: req.currentUser
         })
+=======
+
+    if (!req.currentUser) {
+        return res.status(404).json({ message: `You must be logged in to leave a rand or rave.` })
+    }
+
+    const comment = await Comment.create({
+        ...req.body,
+        authorId: req.currentUser.userId,
+        placeId: placeId
+    })
+
+    res.send({
+        ...comment.toJSON(),
+        author: req.currentUser
+>>>>>>> 7c4106bd0327abc89ac5fc26c7300f2f1368da86
     })
 
 router.get('/profile', async ( req, res) => {
