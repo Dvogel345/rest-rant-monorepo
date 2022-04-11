@@ -4,7 +4,7 @@ const db = require("../models")
 const { Place, Comment, User } = db
 
 router.post('/', async (req, res) => {
-    if(req.currentUser?.role !== 'admin'){
+    if(req.currentUser?.canAddPlace()){
         return res.status(403).json({ message: 'You are not allowed to add a place'})
     }
     if (!req.body.pic) {
@@ -47,7 +47,7 @@ router.get('/:placeId', async (req, res) => {
 })
 
 router.put('/:placeId', async (req, res) => {
-    if(req.currentUser?.role !== 'admin'){
+    if(req.currentUser?.role.canAddPlace()){
         return res.status(403).json({ message: 'You are not allowed to edit places'})
     }
     let placeId = Number(req.params.placeId)
@@ -68,7 +68,7 @@ router.put('/:placeId', async (req, res) => {
 })
 
 router.delete('/:placeId', async (req, res) => {
-    if(req.currentUser?.role !== 'admin'){
+    if(req.currentUser?.role.role.canAddPlace()){
         return res.status(403).json({ message: 'You are not allowed to delete places'})
     }
     let placeId = Number(req.params.placeId)
