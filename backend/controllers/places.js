@@ -20,7 +20,6 @@ router.post('/', async (req, res) => {
     res.json(place)
 })
 
-
 router.get('/', async (req, res) => {
     const places = await Place.findAll()
     res.json(places)

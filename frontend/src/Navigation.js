@@ -61,6 +61,7 @@ function Navigation() {
                         Add Place
                     </a>
                 </li>
+                {addPlaceButton}
                 {loginActions}
             </ul>
         </nav>
