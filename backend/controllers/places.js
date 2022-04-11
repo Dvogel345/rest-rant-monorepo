@@ -103,22 +103,6 @@ router.post('/:placeId/comments', async (req, res) => {
     if (!place) {
         return res.status(404).json({ message: `Could not find place with id "${placeId}"` })
     }
-<<<<<<< HEAD
-    if (!req.currentUser) {
-        return res.status(404).json({ message: `Could not find place with id "${palceId}"`})
-    }
-
-        const comment = await Comment.create({
-            ...req.body,
-            authorId: currentUser.userId,
-            placeId: placeId
-        })
-
-        res.send({
-            ...comment.toJSON(),
-            author: req.currentUser
-        })
-=======
 
     if (!req.currentUser) {
         return res.status(404).json({ message: `You must be logged in to leave a rand or rave.` })
@@ -133,11 +117,7 @@ router.post('/:placeId/comments', async (req, res) => {
     res.send({
         ...comment.toJSON(),
         author: req.currentUser
->>>>>>> 7c4106bd0327abc89ac5fc26c7300f2f1368da86
     })
-
-router.get('/profile', async ( req, res) => {
-    res.json(req.currentUser)
 })
 
 router.delete('/:placeId/comments/:commentId', async (req, res) => {
@@ -162,6 +142,5 @@ router.delete('/:placeId/comments/:commentId', async (req, res) => {
         }
     }
 })
-
 
 module.exports = router
